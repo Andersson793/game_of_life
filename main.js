@@ -1,16 +1,23 @@
 import "/style.css";
 
-function game() {
+const gridWidth = 20
+const gridHeigth = 20
 
-    let grid = {}
-    const gridWidth = 30
-    const gridHeigth = 20
+class cell {
 
-    function getNeighbors(pX,pY) {
+    constructor(a,x,y) {
+        this.aLive =  a,
+        this.position = {
+            x: x,
+            y: y
+        }
+    }
+
+    get getNeighbors() {
 
         const arrNeighbor = new Array
 
-        const rPosition = [
+        const B = [
             {x: -1, y: -1},
             {x: 0, y: -1},
             {x: 1, y: -1},
@@ -22,18 +29,14 @@ function game() {
         ]
 
 
-        rPosition.forEach(neighbors => {
+        B.forEach(neighbors => {
 
-            if (pX + neighbors.x < 0 || pY + neighbors.y < 0 || pX + neighbors.x >= gridWidth || pY + neighbors.y >= gridHeigth)
-            {
-                return false
-            }
-            else
+            if (this.position.x + neighbors.x >= 0 && this.position.y + neighbors.y >= 0 && this.position.x + neighbors.x < gridWidth && this.position.y + neighbors.y < gridHeigth)
             {
 
                 const neighborsPosition = {
-                    x: pX + neighbors.x,
-                    y: pY + neighbors.y
+                    x: this.position.x + neighbors.x,
+                    y: this.position.y + neighbors.y
                 }
 
                 arrNeighbor.push(neighborsPosition)
@@ -42,27 +45,28 @@ function game() {
         });
 
         return arrNeighbor;
-    };
+    }
+}
+
+class grid {
     
-    function createGrid(gridWidth, gridHeigth) {
+    constructor(){
+        this.gridWidth = 30
+        this.gridHeigth = 30
+        this.cell = (a,x,y) => new cell(a,x,y)
+    }
+
+    get createGrid(){
 
         const model = new Array
 
-        for (let y = 0; y < gridHeigth; y++) {
+        for (let y = 0; y < this.gridHeigth; y++) {
 
             const row = new Array
 
-            for (let x = 0; x < gridWidth; x++) {
+            for (let x = 0; x < this.gridWidth; x++) {
 
-                const cell = {
-                    //aLive: Math.floor(Math.random() * 2),
-                    aLive: 0,
-                    position: {
-                        x: x,
-                        y: y
-                    },
-                    neighbors: getNeighbors(x,y)
-                }
+                const cell = this.cell(0,x,y)
                 
                 row.push(cell)
                 
@@ -73,20 +77,18 @@ function game() {
         }
 
         return model
-
     }
 
-    function generateNewGrid(grid) {
-
-        const newGrid = createGrid(gridWidth, gridHeigth)
+    newGrid(grid) {
+        
+        const sameGrid = this.createGrid
 
         function neighborsLivingCount(pX,pY) {
 
             let neighborsCount = 0;
-            const cell = grid[pY][pX]
-            const neighbors = cell.neighbors
 
-            
+            const neighbors = new cell(0,pX,pY).getNeighbors
+
             neighbors.forEach(b => {
 
                 if (grid[b.y][b.x].aLive === 1) {
@@ -107,65 +109,27 @@ function game() {
                 }
 
                 if (b.aLive === 1 && neighborsLiving.count === 2 || neighborsLiving.count === 3) {
-                    newGrid[y][x].aLive = 1
+                    sameGrid[y][x].aLive = 1
                 }else if(b.aLive === 0 && neighborsLiving.count === 3){
-                    newGrid[y][x].aLive = 1
+                    sameGrid[y][x].aLive = 1
                 }else if(b.aLive === 1 && neighborsLiving.count > 3){
-                    newGrid[y][x].aLive = 0
+                    sameGrid[y][x].aLive = 0
                 }else if(b.aLive === 1 && neighborsLiving.count < 2){
-                    newGrid[y][x].aLive = 0
+                    sameGrid[y][x].aLive = 0
                 }
 
             });
         });
     
 
-        return newGrid;
-
+        return sameGrid;
     }
 
-    function renderGrid(grid, gridWidth, gridHeigth) {
-
-        const HTMLGrid = document.getElementById('grid')
-        const renderElement = (node, element) => {return node.insertAdjacentElement('beforeend', element)}
-
-        function createElement (width, height, x, y, aLive) {
-
-            const element = document.createElement("div")
-            const colorElement = (g) => {if(g) {return 'background-color: black'}else{return 'background-color: white'}}
-            const index = (y * gridWidth) + x
-
-            element.setAttribute('class', 'cell')
-            element.setAttribute('style', `${colorElement(aLive)}; width: calc(100%/${width}); height: calc(100%/${height});`)
-            element.setAttribute('id', index)
-            element.innerHTML = `${x} : ${y}`
-
-            return element;
-        }
-
-        function renderRow (HTMLGrid, a) {
-
-            a.forEach((u) => {
-                
-                const cell = createElement(gridWidth, gridHeigth, u.position.x, u.position.y, u.aLive)
-            
-                renderElement(HTMLGrid, cell)
-
-            })
-
-        }
-
-        grid.forEach(a => {
-
-            renderRow(HTMLGrid, a)
-        });
-    }
-
-    function updateGrid(grid) {
+    update(grid) {
 
         grid.forEach((a, y) => {
             a.forEach((s, x) => {
-                const index = (y * gridWidth) + x
+                const index = (y * this.gridWidth) + x
                 const element = document.getElementById(index)
 
                 if (s.aLive === 1) {
@@ -179,30 +143,54 @@ function game() {
         
     }
 
-    grid = createGrid(gridWidth, gridHeigth);
+    render(grid) {
 
-    function runGame(grid) {
+        const HTMLGrid = document.getElementById('grid')
+        const renderElement = (node, element) => {return node.insertAdjacentElement('beforeend', element)}
 
+        const width = this.gridWidth
+        const height = this.gridHeigth
 
-        grid[5][5].aLive = 1
-        grid[5][6].aLive = 1
-        grid[5][7].aLive = 1
+        function createElement (width, height, x, y, aLive) {
 
-        setInterval(() => {
+            const element = document.createElement("div")
+            const colorElement = (g) => {if(g) {return 'background-color: black'}else{return 'background-color: white'}}
+            const index = (y * width) + x
 
-            grid = generateNewGrid(grid)
+            element.setAttribute('class', 'cell')
+            element.setAttribute('style', `${colorElement(aLive)}; width: calc(100%/${width}); height: calc(100%/${height});`)
+            element.setAttribute('id', index)
 
-            updateGrid(grid)
+            return element;
+        }
+
+        function renderRow (HTMLGrid, a) {
+
+            a.forEach((u) => {
+                
+                const HTMLcell = createElement(width, height, u.position.x, u.position.y, u.aLive)
             
-        }, 100);
+                renderElement(HTMLGrid, HTMLcell)
 
+            })
 
+        }
+
+        grid.forEach(a => {
+
+            renderRow(HTMLGrid, a)
+        });
     }
-
-    renderGrid(grid, gridWidth, gridHeigth);
-    
-    runGame(grid);
-    
 }
 
-game();
+let gr = new grid().createGrid
+
+new grid().render(gr)
+
+setInterval(() => {
+
+    gr = new grid().newGrid(gr)
+
+    new grid().update(gr)
+
+}, 100);
