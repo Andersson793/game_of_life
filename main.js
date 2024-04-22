@@ -1,7 +1,7 @@
 import "/style.css";
 
-const gridWidth = 20
-const gridHeigth = 20
+const gridWidth = 100
+const gridHeigth = 60
 
 class cell {
 
@@ -51,9 +51,24 @@ class cell {
 class grid {
     
     constructor(){
-        this.gridWidth = 30
-        this.gridHeigth = 30
+        this.gridWidth = 0
+        this.gridHeigth = 0
         this.cell = (a,x,y) => new cell(a,x,y)
+    }
+
+
+    /**
+     * @param {number} value
+     */
+    set setWidth(value) {
+        this.gridWidth = value
+    }
+
+    /**
+     * @param {number} value
+     */
+    set setHeigth(value) {
+        this.gridHeigth = value
     }
 
     get createGrid(){
@@ -79,9 +94,9 @@ class grid {
         return model
     }
 
-    newGrid(grid) {
+    newGrid(grid, empityGrid) {
         
-        const sameGrid = this.createGrid
+        const newGrid = empityGrid
 
         function neighborsLivingCount(pX,pY) {
 
@@ -109,20 +124,35 @@ class grid {
                 }
 
                 if (b.aLive === 1 && neighborsLiving.count === 2 || neighborsLiving.count === 3) {
-                    sameGrid[y][x].aLive = 1
+                    newGrid[y][x].aLive = 1
                 }else if(b.aLive === 0 && neighborsLiving.count === 3){
-                    sameGrid[y][x].aLive = 1
+                    newGrid[y][x].aLive = 1
                 }else if(b.aLive === 1 && neighborsLiving.count > 3){
-                    sameGrid[y][x].aLive = 0
+                    newGrid[y][x].aLive = 0
                 }else if(b.aLive === 1 && neighborsLiving.count < 2){
-                    sameGrid[y][x].aLive = 0
+                    newGrid[y][x].aLive = 0
                 }
 
             });
         });
     
 
-        return sameGrid;
+        return newGrid;
+    }
+
+    randomizeCells(grid){
+
+        const rand = grid
+
+        rand.forEach((a, y) => {
+            a.forEach((b, x) => {
+
+                b.aLive = Math.floor(Math.random() * 2)
+
+            })
+        })
+
+        return rand;
     }
 
     update(grid) {
@@ -183,14 +213,19 @@ class grid {
     }
 }
 
-let gr = new grid().createGrid
+let model = new grid()
 
-new grid().render(gr)
+model.setWidth = gridWidth
+model.setHeigth = gridHeigth
+
+let currentGrid = model.randomizeCells(model.createGrid)
+
+model.render(currentGrid)
 
 setInterval(() => {
 
-    gr = new grid().newGrid(gr)
+    currentGrid = model.newGrid(currentGrid, model.createGrid)
 
-    new grid().update(gr)
+    model.update(currentGrid)
 
-}, 100);
+}, 100)
