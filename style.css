@@ -4,6 +4,8 @@
     box-sizing: border-box;
 }
 
+/*
+
 #grid{
     width: 100vw;
     height: 100vh;
@@ -19,6 +21,8 @@
 
 .cell{
     padding: 5px;
-    border: 1px solid rgb(209, 209, 209);
+    border: 1px solid rgb(223, 223, 223);
     display: inline;
 }
+
+*/

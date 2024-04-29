@@ -1,7 +1,8 @@
 import "/style.css";
+import "/p5.min.js";
 
-const gridWidth = 100
-const gridHeigth = 60
+const gridWidth = 5;
+const gridHeigth = 5;
 
 class cell {
 
@@ -96,7 +97,7 @@ class grid {
 
     newGrid(grid, empityGrid) {
         
-        const newGrid = empityGrid
+        const newGrid = Object.values(empityGrid)
 
         function neighborsLivingCount(pX,pY) {
 
@@ -175,41 +176,8 @@ class grid {
 
     render(grid) {
 
-        const HTMLGrid = document.getElementById('grid')
-        const renderElement = (node, element) => {return node.insertAdjacentElement('beforeend', element)}
+        
 
-        const width = this.gridWidth
-        const height = this.gridHeigth
-
-        function createElement (width, height, x, y, aLive) {
-
-            const element = document.createElement("div")
-            const colorElement = (g) => {if(g) {return 'background-color: black'}else{return 'background-color: white'}}
-            const index = (y * width) + x
-
-            element.setAttribute('class', 'cell')
-            element.setAttribute('style', `${colorElement(aLive)}; width: calc(100%/${width}); height: calc(100%/${height});`)
-            element.setAttribute('id', index)
-
-            return element;
-        }
-
-        function renderRow (HTMLGrid, a) {
-
-            a.forEach((u) => {
-                
-                const HTMLcell = createElement(width, height, u.position.x, u.position.y, u.aLive)
-            
-                renderElement(HTMLGrid, HTMLcell)
-
-            })
-
-        }
-
-        grid.forEach(a => {
-
-            renderRow(HTMLGrid, a)
-        });
     }
 }
 
@@ -220,12 +188,48 @@ model.setHeigth = gridHeigth
 
 let currentGrid = model.randomizeCells(model.createGrid)
 
-model.render(currentGrid)
+const gridSize = {
+    width: 700,
+    height: 700
+}
 
-setInterval(() => {
+const cellSize = {
+    width: gridSize.width / gridWidth,
+    height: gridSize.height / gridHeigth
+}
 
-    currentGrid = model.newGrid(currentGrid, model.createGrid)
+const setup = (p) =>  function(){
 
-    model.update(currentGrid)
+    p.frameRate(10);
+    p.createCanvas(gridSize.width, gridSize.height)
+    p.background(200)
 
-}, 100)
+
+
+}
+
+const draw = (p) => function(){
+
+    p.fill(100)
+
+    currentGrid.forEach((a, y) => {
+
+        a.forEach((b, x) => {
+
+            const width = b.position.x * cellSize.width;
+            const height = b.position.y * cellSize.height;
+
+            p.rect(width, height, gridSize.width, gridSize.height)
+
+        })
+    })
+}
+
+const intance = (p) => {
+
+    p.setup = setup(p)
+    p.draw = draw(p)
+
+}
+
+new p5(intance);
