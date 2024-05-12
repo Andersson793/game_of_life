@@ -1,8 +1,8 @@
 import "/style.css";
 import "/p5.min.js";
 
-const gridWidth = 5;
-const gridHeigth = 5;
+const gridWidth = 100;
+const gridHeigth = 100;
 
 class cell {
 
@@ -49,148 +49,104 @@ class cell {
     }
 }
 
-class grid {
-    
-    constructor(){
-        this.gridWidth = 0
-        this.gridHeigth = 0
-        this.cell = (a,x,y) => new cell(a,x,y)
-    }
+let currentGrid;
 
+function createGrid(){
 
-    /**
-     * @param {number} value
-     */
-    set setWidth(value) {
-        this.gridWidth = value
-    }
+    const model = new Array
 
-    /**
-     * @param {number} value
-     */
-    set setHeigth(value) {
-        this.gridHeigth = value
-    }
+    for (let y = 0; y < gridHeigth; y++) {
 
-    get createGrid(){
+        const row = new Array
 
-        const model = new Array
+        for (let x = 0; x < gridWidth; x++) {
 
-        for (let y = 0; y < this.gridHeigth; y++) {
-
-            const row = new Array
-
-            for (let x = 0; x < this.gridWidth; x++) {
-
-                const cell = this.cell(0,x,y)
-                
-                row.push(cell)
-                
-            }
-
-            model.push(row)
+            const mod = new cell(0,x,y)
+            
+            row.push(mod)
             
         }
 
-        return model
-    }
-
-    newGrid(grid, empityGrid) {
-        
-        const newGrid = Object.values(empityGrid)
-
-        function neighborsLivingCount(pX,pY) {
-
-            let neighborsCount = 0;
-
-            const neighbors = new cell(0,pX,pY).getNeighbors
-
-            neighbors.forEach(b => {
-
-                if (grid[b.y][b.x].aLive === 1) {
-                    neighborsCount++
-                }
-
-            });
-
-            return neighborsCount;
-        }
-
-
-        grid.forEach((a, y) => {
-            a.forEach((b, x) => {
-                
-                const neighborsLiving = {
-                    count: neighborsLivingCount(b.position.x, b.position.y) 
-                }
-
-                if (b.aLive === 1 && neighborsLiving.count === 2 || neighborsLiving.count === 3) {
-                    newGrid[y][x].aLive = 1
-                }else if(b.aLive === 0 && neighborsLiving.count === 3){
-                    newGrid[y][x].aLive = 1
-                }else if(b.aLive === 1 && neighborsLiving.count > 3){
-                    newGrid[y][x].aLive = 0
-                }else if(b.aLive === 1 && neighborsLiving.count < 2){
-                    newGrid[y][x].aLive = 0
-                }
-
-            });
-        });
-    
-
-        return newGrid;
-    }
-
-    randomizeCells(grid){
-
-        const rand = grid
-
-        rand.forEach((a, y) => {
-            a.forEach((b, x) => {
-
-                b.aLive = Math.floor(Math.random() * 2)
-
-            })
-        })
-
-        return rand;
-    }
-
-    update(grid) {
-
-        grid.forEach((a, y) => {
-            a.forEach((s, x) => {
-                const index = (y * this.gridWidth) + x
-                const element = document.getElementById(index)
-
-                if (s.aLive === 1) {
-                    element.style.backgroundColor='black'
-                }else{
-                    element.style.backgroundColor='white'
-                }
-
-            });
-        });
+        model.push(row)
         
     }
 
-    render(grid) {
-
-        
-
-    }
+    return model
 }
 
-let model = new grid()
+function randomizeCells(grid){
 
-model.setWidth = gridWidth
-model.setHeigth = gridHeigth
+    const g = grid
 
-let currentGrid = model.randomizeCells(model.createGrid)
+    g.forEach((a, y) => {
+        a.forEach((b, x) => {
+
+            b.aLive = Math.floor(Math.random() * 2)
+
+        })
+    })
+
+    return g;
+}
+
+currentGrid = createGrid();
+currentGrid = randomizeCells(currentGrid);
+
+function init(){
+    console.log(test)
+}
+
+function newGrid() {
+
+    const nextGrid = createGrid();
+
+    function neighborsLivingCount(pX,pY) {
+
+        let neighborsCount = 0;
+
+        const neighbors = new cell(0,pX,pY).getNeighbors
+
+        neighbors.forEach(b => {
+
+            if (currentGrid[b.y][b.x].aLive === 1) {
+                neighborsCount++
+            }
+
+        });
+
+        return neighborsCount;
+    }
+
+
+    currentGrid.forEach((a, y) => {
+        a.forEach((b, x) => {
+            
+            const neighborsLiving = {
+                count: neighborsLivingCount(b.position.x, b.position.y) 
+            }
+
+            if (b.aLive === 1 && neighborsLiving.count === 2 || neighborsLiving.count === 3) {
+                nextGrid[y][x].aLive = 1
+            }else if(b.aLive === 0 && neighborsLiving.count === 3){
+                nextGrid[y][x].aLive = 1
+            }else if(b.aLive === 1 && neighborsLiving.count > 3){
+                nextGrid[y][x].aLive = 0
+            }else if(b.aLive === 1 && neighborsLiving.count < 2){
+                nextGrid[y][x].aLive = 0
+            }
+
+        });
+    });
+
+    //swap
+    let temp = nextGrid;
+    currentGrid = temp;
+    
+}
 
 const gridSize = {
-    width: 700,
-    height: 700
+    width: 900,
+    height: 900
 }
 
 const cellSize = {
@@ -204,20 +160,24 @@ const setup = (p) =>  function(){
     p.createCanvas(gridSize.width, gridSize.height)
     p.background(200)
 
-
-
 }
 
 const draw = (p) => function(){
 
-    p.fill(100)
+    newGrid()
 
     currentGrid.forEach((a, y) => {
 
         a.forEach((b, x) => {
 
-            const width = b.position.x * cellSize.width;
-            const height = b.position.y * cellSize.height;
+            if (b.aLive)
+                p.fill(0)
+            else
+                p.fill(250)
+            
+
+            const width = x * cellSize.width;
+            const height = y * cellSize.height;
 
             p.rect(width, height, gridSize.width, gridSize.height)
 
