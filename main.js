@@ -61,9 +61,9 @@ function createGrid(){
 
         for (let x = 0; x < gridWidth; x++) {
 
-            const mod = new cell(0,x,y)
+            const b = new cell(0,x,y)
             
-            row.push(mod)
+            row.push(b)
             
         }
 
@@ -91,14 +91,9 @@ function randomizeCells(grid){
 
 currentGrid = createGrid();
 currentGrid = randomizeCells(currentGrid);
-
-function init(){
-    console.log(test)
-}
+let nextGrid = createGrid();
 
 function newGrid() {
-
-    const nextGrid = createGrid();
 
     function neighborsLivingCount(pX,pY) {
 
@@ -138,9 +133,8 @@ function newGrid() {
         });
     });
 
-    //swap
-    let temp = nextGrid;
-    currentGrid = temp;
+    currentGrid = nextGrid;
+    nextGrid = createGrid();
     
 }
 
@@ -156,9 +150,12 @@ const cellSize = {
 
 const setup = (p) =>  function(){
 
+    const mycanvas = p.createCanvas(gridSize.width, gridSize.height)
+
     p.frameRate(10);
-    p.createCanvas(gridSize.width, gridSize.height)
     p.background(200)
+
+    mycanvas.parent('conteiner')
 
 }
 

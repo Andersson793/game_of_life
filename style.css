@@ -4,6 +4,13 @@
     box-sizing: border-box;
 }
 
+#conteiner{
+    width: fit-content;
+    height: fit-content;
+    border: 2px solid black;
+    margin: 1rem auto;
+}
+
 /*
 
 #grid{
