@@ -1,5 +1,4 @@
-import "./lib/p5.js";
-import { useStore } from "./store/pinia.js";
+import p5 from "p5";
 
 const gridWidth = 30;
 const gridHeigth = 30;
