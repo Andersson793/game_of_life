@@ -1,7 +1,10 @@
 import p5 from "p5";
 
-const gridWidth = 30;
-const gridHeigth = 30;
+const gridWidth = 40;
+const gridHeigth = 40;
+
+const p = 950;
+const o = document.body.clientWidth;
 
 class cell {
 
@@ -141,8 +144,8 @@ function newGrid() {
 }
 
 const gridSize = {
-    width: 400,
-    height: 400
+    width: 200,
+    height: 200
 }
 
 const cellSize = {

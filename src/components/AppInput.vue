@@ -12,15 +12,15 @@ export default {
 
   mounted(){
 
-    console.log(this.store.gridColumns, this.store.gridRows)
+    console.log("columns : "+this.store.gridColumns, "rows : "+this.store.gridRows)
 
   },
 
   methods: {
 
-    handleChange(event){
+    handleChange(v){
 
-      this.store.gridColumns = event.target.value
+      console.log(v)
 
     }
 
@@ -35,11 +35,11 @@ export default {
   <div>
 
     <div>
-      <strong>Set the grid size.</strong>
+      <strong>Set the grid population.</strong>
     </div>
     <!--change the component -->
     <div>
-      <input id="gridSize" v-mask="{mask: '99'}" class="shadow-md px-8 py-4 mr-5 mt-5 w-32 rounded-sm bg-slate-100" @change="handleChange" :value="store.gridColumns"> 
+      <input id="gridSize" v-mask="{mask: '99'}" class="shadow-md px-8 py-4 mr-5 mt-5 w-32 rounded-sm bg-slate-100" @change="(e) => store.updateGridPopulation(e.target.value)" :value="store.gridPopulation"> 
       </input>
     </div>
 
