@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 export const useStore = defineStore('useStore', {
     state: () => {
         return {
-            gridPopulation: 20,
+            gridPopulation: 21,
             gridColumns: 6,
             gridRows: 3
         }

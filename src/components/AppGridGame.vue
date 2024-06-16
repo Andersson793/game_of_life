@@ -8,16 +8,15 @@ export default {
         return{
             store: useStore(),
             windowWidth: document.body.clientWidth,
-            windowHeight: document.body.clientHeight
+            windowHeight: document.body.clientHeight - 32,
+            gridPopulation: useStore().gridPopulation
         }
     },
 
     mounted() {
 
-        const k = this.store.gridPopulation
-
-        let gridWidth = this.store.gridColumns * k
-        let gridHeigth = this.store.gridRows * k
+        let gridWidth = this.store.gridColumns * this.gridPopulation
+        let gridHeigth = this.store.gridRows * this.gridPopulation
 
         class cell {
 
@@ -219,6 +218,10 @@ export default {
 </script>
 <template>
     <div id="conteiner">
-        
+        <div class="bg-black text-green-500  flex justify-around py-1">
+            <span>grid population: {{ store.gridPopulation }}</span>
+            <span>grid height: {{ windowHeight }}px</span>
+            <span>grid width: {{ windowWidth }}px</span>
+        </div>
     </div>
 </template>
