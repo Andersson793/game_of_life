@@ -2,237 +2,217 @@
 import p5 from "p5";
 import { useStore } from "../store/pinia";
 
-
 export default {
-    data(){
-        return{
+    data() {
+        return {
             store: useStore(),
             windowWidth: document.body.clientWidth,
             windowHeight: document.body.clientHeight - 32,
             gridPopulation: useStore().gridPopulation,
-            gridCols: 0,
-            gridRows: 0,
+            gridCols: 10,
+            gridRows: 10,
             currentGrid: [],
-            nextGrid: [],
-            cell: {}
-        }
+            //nextGrid: [],
+            cell: {},
+        };
     },
 
     mounted() {
+        class cell {
+            constructor(a, x, y) {
+                (this.aLive = a),
+                    (this.position = {
+                        x: x,
+                        y: y,
+                    });
+            }
 
-        const setup = (p) => {
+            get getNeighbors() {
+                const arrNeighbors = new Array();
 
-            //const mycanvas = p.createCanvas(this.windowWidth, this.windowHeight)
-            const mycanvas = p.createCanvas(300, 500)
+                const B = [
+                    { x: -1, y: -1 },
+                    { x: 0, y: -1 },
+                    { x: 1, y: -1 },
+                    { x: -1, y: 0 },
+                    { x: 1, y: 0 },
+                    { x: -1, y: 1 },
+                    { x: 0, y: 1 },
+                    { x: 1, y: 1 },
+                ];
 
-            p.frameRate(10);
-            p.background(190)
+                B.forEach((neighbors) => {
+                    if (
+                        /*
+                        this.position.x + neighbors.x >= 0 &&
+                        this.position.y + neighbors.y >= 0 &&
+                        this.position.x + neighbors.x < this.gridCols &&
+                        this.position.y + neighbors.y < this.gridRows
 
-            mycanvas.parent('conteiner')
+                        */
 
+                        true
+                    ) {
+                        const neighborsPosition = {
+                            x: this.position.x + neighbors.x,
+                            y: this.position.y + neighbors.y,
+                        };
+
+                        arrNeighbors.push(neighborsPosition);
+                    }
+                });
+
+                return arrNeighbors;
+            }
         }
 
-        const draw = (p) => {
+        this.cell = (a, x, y) => new cell(a, x, y);
 
-            this.currentGrid.forEach((a, y) => {
+        this.start();
 
-                a.forEach((b, x) => {
-
-                    /*
-
-                    if (b.aLive)
-                        p.fill(155)
-                    else
-                        p.fill(250)
-                
-                    */
-
-                    p.fill(170)
-                    p.rect(1, 2, 3, 4)
-
-                })
-            })
-
-        }
-
-        const intance = (p) => {
-
-            p.setup = setup(p)
-            p.draw = draw(p)
-        }
-
-        new p5(intance);
-
+        console.log(this.cell(1, 0, 0).getNeighbors);
     },
 
-    methods :{
-
-
-        randomizeCells(grid){
-
-            const g = grid
+    methods: {
+        randomizeCells(grid) {
+            const g = grid;
 
             g.forEach((a, y) => {
                 a.forEach((b, x) => {
-
-                    b.aLive = Math.floor(Math.random() * 2)
-
-                })
-            })
+                    b.aLive = Math.floor(Math.random() * 2);
+                });
+            });
 
             return g;
-
-            console.log(g)
         },
 
-        createGrid(){
-
-            const model = new Array
+        createGrid() {
+            const model = new Array();
 
             for (let y = 0; y < this.gridRows; y++) {
-
-                const row = new Array
+                const row = new Array();
 
                 for (let x = 0; x < this.gridCols; x++) {
+                    const b = this.cell(0, x, y);
 
-                    const b = this.cell(0,x,y)
-                    
-                    row.push(b)
-                    
+                    row.push(b);
                 }
 
-                model.push(row)
-                
+                model.push(row);
             }
-
-            console.log(model)
 
             return model;
         },
 
-        neighborsLivingCount(pX,pY) {
-
+        neighborsLivingCount(pX, pY) {
             let neighborsCount = 0;
 
-            const neighbors = this.cell(0,pX,pY).getNeighbors
+            const neighbors = this.cell(0, pX, pY).getNeighbors;
 
-            neighbors.forEach(b => {
-
-                if (this.currentGrid[b.y][b.x].aLive === 1) {
-                    neighborsCount++
+            neighbors.forEach((b) => {
+                if (this.currentGrid[b.y][b.x].aLive) {
+                    neighborsCount++;
                 }
-
             });
-
-            console.log(neighborsCount)
 
             return neighborsCount;
         },
 
         generateNewgrid() {
+            let that = this;
 
-            this.currentGrid.forEach((a, y) => {
+            let nextGrid = this.createGrid();
+
+            that.currentGrid.forEach((a, y) => {
                 a.forEach((b, x) => {
-                    
-                    const neighborsLiving = this.neighborsLivingCount(b.position.x, b.position.y)
+                    const neighborsLiving = that.neighborsLivingCount(
+                        b.position.x,
+                        b.position.y,
+                    );
 
-                    if (b.aLive === 1 && neighborsLiving === 2 || neighborsLiving === 3)
-                    {
-                        this.nextGrid[y][x].aLive = 1
-                    }else if(b.aLive === 0 && neighborsLiving === 3)
-                    {
-                        this.nextGrid[y][x].aLive = 1
-                    }else if(b.aLive === 1 && neighborsLiving > 3)
-                    {
-                        this.nextGrid[y][x].aLive = 0
-                    }else if(b.aLive === 1 && neighborsLiving < 2)
-                    {
-                        this.nextGrid[y][x].aLive = 0
+                    if (
+                        (b.aLive === 1 && neighborsLiving === 2) ||
+                        neighborsLiving === 3
+                    ) {
+                        nextGrid[y][x].aLive = 1;
+                    } else if (b.aLive === 0 && neighborsLiving === 3) {
+                        nextGrid[y][x].aLive = 1;
+                    } else if (b.aLive === 1 && neighborsLiving > 3) {
+                        nextGrid[y][x].aLive = 0;
+                    } else if (b.aLive === 1 && neighborsLiving < 2) {
+                        nextGrid[y][x].aLive = 0;
                     }
-
                 });
             });
 
-            this.currentGrid = this.nextGrid;
-            
-            console.log(this.currentGrid)
+            //that.currentGrid = nextGrid;
 
-            this.nextGrid = this.createGrid();
+            nextGrid = this.createGrid();
 
-            console.log('função chamada')
-
+            return nextGrid;
         },
 
-        test(){
-            console.log('test de chamada')
-        },
-
-        renderGrid () {
+        start() {
+            const that = this;
 
             const cellSize = {
-                width: this.windowWidth / this.gridCols,
-                height: this.windowHeight / this.gridRows
-            }
+                width: that.windowWidth / that.gridCols,
+                height: that.windowHeight / that.gridRows,
+            };
 
-            const setup = (p) => {
+            let setup = (p) =>
+                function () {
+                    //const mycanvas = p.createCanvas(this.windowWidth, this.windowHeight)
+                    const mycanvas = p.createCanvas(600, 600);
 
-                //const mycanvas = p.createCanvas(this.windowWidth, this.windowHeight)
-                const mycanvas = p.createCanvas(500, 500)
+                    //p.frameRate(2000);
+                    p.background(200);
 
-                p.frameRate(10);
-                p.background(200)
+                    that.currentGrid = that.randomizeCells(that.createGrid());
+                    that.nextGrid = that.createGrid();
 
-                mycanvas.parent('conteiner')
+                    mycanvas.parent("conteiner");
+                };
 
-            }
+            let draw = (p) =>
+                function () {
+                    that.generateNewgrid();
 
-            const draw = (p) => {
+                    that.currentGrid.forEach((a, y) => {
+                        a.forEach((b, x) => {
+                            const width = x * cellSize.width;
+                            const height = y * cellSize.height;
 
-                this.currentGrid.forEach((a, y) => {
+                            if (b.aLive) p.fill(155);
+                            else p.fill(250);
 
-                    a.forEach((b, x) => {
+                            p.rect(
+                                width,
+                                height,
+                                that.windowWidth,
+                                that.windowHeight,
+                            );
+                        });
+                    });
+                };
 
-                        const width = x * cellSize.width;
-                        const height = y * cellSize.height;
-
-
-                        if (b.aLive)
-                            p.fill(155)
-                        else
-                            p.fill(250)
-                    
-
-                        p.rect(width, height, this.windowWidth, this.windowHeight)
-
-                    })
-                })
-            }
-
-            let instance = (p) => {
-
-                p.setup = setup(p)
-                p.draw = draw(p)
-                this.generateNewgrid()
-                this.test()
-
-            }
+            var instance = (p) => {
+                p.setup = setup(p);
+                p.draw = draw(p);
+            };
 
             new p5(instance);
-        }
-
-
+        },
     },
 
-    updated () {
-        console.log('Updated')
-        
-    }
-}
-
+    updated() {
+        console.log("Updated");
+    },
+};
 </script>
 <template>
     <div id="conteiner">
-        <div class="bg-black text-green-500  flex justify-around py-1" @click="">
+        <div class="bg-black text-green-500 flex justify-around py-1" @click="">
             <span>grid population: {{ store.gridPopulation }}</span>
             <span>grid height: {{ windowHeight }}px</span>
             <span>grid width: {{ windowWidth }}px</span>
