@@ -9,10 +9,10 @@ export default {
             windowWidth: document.body.clientWidth,
             windowHeight: document.body.clientHeight - 32,
             gridPopulation: useStore().gridPopulation,
-            gridCols: 10,
-            gridRows: 10,
+            gridCols: 50,
+            gridRows: 30,
             currentGrid: [],
-            //nextGrid: [],
+            nextGrid: [],
             cell: {},
         };
     },
@@ -26,51 +26,11 @@ export default {
                         y: y,
                     });
             }
-
-            get getNeighbors() {
-                const arrNeighbors = new Array();
-
-                const B = [
-                    { x: -1, y: -1 },
-                    { x: 0, y: -1 },
-                    { x: 1, y: -1 },
-                    { x: -1, y: 0 },
-                    { x: 1, y: 0 },
-                    { x: -1, y: 1 },
-                    { x: 0, y: 1 },
-                    { x: 1, y: 1 },
-                ];
-
-                B.forEach((neighbors) => {
-                    if (
-                        /*
-                        this.position.x + neighbors.x >= 0 &&
-                        this.position.y + neighbors.y >= 0 &&
-                        this.position.x + neighbors.x < this.gridCols &&
-                        this.position.y + neighbors.y < this.gridRows
-
-                        */
-
-                        true
-                    ) {
-                        const neighborsPosition = {
-                            x: this.position.x + neighbors.x,
-                            y: this.position.y + neighbors.y,
-                        };
-
-                        arrNeighbors.push(neighborsPosition);
-                    }
-                });
-
-                return arrNeighbors;
-            }
         }
 
         this.cell = (a, x, y) => new cell(a, x, y);
 
         this.start();
-
-        console.log(this.cell(1, 0, 0).getNeighbors);
     },
 
     methods: {
@@ -104,10 +64,43 @@ export default {
             return model;
         },
 
+        getNeighbors(x, y) {
+            const arrNeighbors = new Array();
+
+            const B = [
+                { x: -1, y: -1 },
+                { x: 0, y: -1 },
+                { x: 1, y: -1 },
+                { x: -1, y: 0 },
+                { x: 1, y: 0 },
+                { x: -1, y: 1 },
+                { x: 0, y: 1 },
+                { x: 1, y: 1 },
+            ];
+
+            B.forEach((neighbors) => {
+                if (
+                    x + neighbors.x >= 0 &&
+                    y + neighbors.y >= 0 &&
+                    x + neighbors.x < this.gridCols &&
+                    y + neighbors.y < this.gridRows
+                ) {
+                    const neighborsPosition = {
+                        x: x + neighbors.x,
+                        y: y + neighbors.y,
+                    };
+
+                    arrNeighbors.push(neighborsPosition);
+                }
+            });
+
+            return arrNeighbors;
+        },
+
         neighborsLivingCount(pX, pY) {
             let neighborsCount = 0;
 
-            const neighbors = this.cell(0, pX, pY).getNeighbors;
+            const neighbors = this.getNeighbors(pX, pY);
 
             neighbors.forEach((b) => {
                 if (this.currentGrid[b.y][b.x].aLive) {
@@ -121,8 +114,6 @@ export default {
         generateNewgrid() {
             let that = this;
 
-            let nextGrid = this.createGrid();
-
             that.currentGrid.forEach((a, y) => {
                 a.forEach((b, x) => {
                     const neighborsLiving = that.neighborsLivingCount(
@@ -134,22 +125,20 @@ export default {
                         (b.aLive === 1 && neighborsLiving === 2) ||
                         neighborsLiving === 3
                     ) {
-                        nextGrid[y][x].aLive = 1;
+                        this.nextGrid[y][x].aLive = 1;
                     } else if (b.aLive === 0 && neighborsLiving === 3) {
-                        nextGrid[y][x].aLive = 1;
+                        this.nextGrid[y][x].aLive = 1;
                     } else if (b.aLive === 1 && neighborsLiving > 3) {
-                        nextGrid[y][x].aLive = 0;
+                        this.nextGrid[y][x].aLive = 0;
                     } else if (b.aLive === 1 && neighborsLiving < 2) {
-                        nextGrid[y][x].aLive = 0;
+                        this.nextGrid[y][x].aLive = 0;
                     }
                 });
             });
 
-            //that.currentGrid = nextGrid;
+            that.currentGrid = this.nextGrid;
 
-            nextGrid = this.createGrid();
-
-            return nextGrid;
+            that.nextGrid = this.createGrid();
         },
 
         start() {
@@ -162,16 +151,18 @@ export default {
 
             let setup = (p) =>
                 function () {
-                    //const mycanvas = p.createCanvas(this.windowWidth, this.windowHeight)
-                    const mycanvas = p.createCanvas(600, 600);
+                    const mycanvas = p.createCanvas(
+                        that.windowWidth,
+                        that.windowHeight,
+                    );
 
-                    //p.frameRate(2000);
+                    p.frameRate(10);
                     p.background(200);
 
                     that.currentGrid = that.randomizeCells(that.createGrid());
                     that.nextGrid = that.createGrid();
 
-                    mycanvas.parent("conteiner");
+                    mycanvas.parent("canvas");
                 };
 
             let draw = (p) =>
@@ -183,7 +174,7 @@ export default {
                             const width = x * cellSize.width;
                             const height = y * cellSize.height;
 
-                            if (b.aLive) p.fill(155);
+                            if (b.aLive) p.fill(40);
                             else p.fill(250);
 
                             p.rect(
@@ -211,11 +202,11 @@ export default {
 };
 </script>
 <template>
-    <div id="conteiner">
-        <div class="bg-black text-green-500 flex justify-around py-1" @click="">
-            <span>grid population: {{ store.gridPopulation }}</span>
-            <span>grid height: {{ windowHeight }}px</span>
-            <span>grid width: {{ windowWidth }}px</span>
+    <div id="canvas">
+        <div class="bg-black text-green-500 flex justify-around h-7" @click="">
+            <span>grid population: {{ this.gridCols * this.gridRows }}</span>
+            <span>window height: {{ windowHeight }}px</span>
+            <span>window width: {{ windowWidth }}px</span>
         </div>
     </div>
 </template>
