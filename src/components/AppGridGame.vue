@@ -9,11 +9,12 @@ export default {
             windowWidth: document.body.clientWidth,
             windowHeight: document.body.clientHeight - 32,
             gridPopulation: useStore().gridPopulation,
-            gridCols: 50,
-            gridRows: 30,
+            gridCols: 20,
+            gridRows: 20,
             currentGrid: [],
             nextGrid: [],
             cell: {},
+            h: false,
         };
     },
 
@@ -156,7 +157,7 @@ export default {
                         that.windowHeight,
                     );
 
-                    p.frameRate(10);
+                    p.frameRate(11);
                     p.background(200);
 
                     that.currentGrid = that.randomizeCells(that.createGrid());
@@ -174,8 +175,8 @@ export default {
                             const width = x * cellSize.width;
                             const height = y * cellSize.height;
 
-                            if (b.aLive) p.fill(40);
-                            else p.fill(250);
+                            if (b.aLive) p.fill(101, 254, 87);
+                            else p.fill(54, 54, 54);
 
                             p.rect(
                                 width,
@@ -185,14 +186,19 @@ export default {
                             );
                         });
                     });
+
+                    if (that.h) {
+                        p.reset();
+                    }
                 };
 
-            var instance = (p) => {
+            //create a p5 instance
+            const instance = (p) => {
                 p.setup = setup(p);
                 p.draw = draw(p);
             };
 
-            new p5(instance);
+            const myCanvas = new p5(instance);
         },
     },
 
@@ -203,10 +209,18 @@ export default {
 </script>
 <template>
     <div id="canvas">
-        <div class="bg-black text-green-500 flex justify-around h-7" @click="">
-            <span>grid population: {{ this.gridCols * this.gridRows }}</span>
-            <span>window height: {{ windowHeight }}px</span>
-            <span>window width: {{ windowWidth }}px</span>
+        <div
+            class="bg-black text-green-500 flex justify-around items-center h-8 uppercase text-sm"
+            @click=""
+        >
+            <span>Grid cells: {{ this.gridCols * this.gridRows }}</span>
+            <span>Grid cols: {{ this.gridCols }}</span>
+            <span>Grid rows: {{ this.gridRows }}</span>
+            <span>
+                Cell color:
+                <samp> III </samp>
+            </span>
+            <span @click="">restart</span>
         </div>
     </div>
 </template>
