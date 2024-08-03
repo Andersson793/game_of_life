@@ -9,12 +9,13 @@ export default {
             windowWidth: document.body.clientWidth,
             windowHeight: document.body.clientHeight - 32,
             gridPopulation: useStore().gridPopulation,
-            gridCols: 20,
-            gridRows: 20,
+            gridCols: 10,
+            gridRows: 10,
             currentGrid: [],
             nextGrid: [],
             cell: {},
             h: false,
+            s: undefined,
         };
     },
 
@@ -112,6 +113,22 @@ export default {
             return neighborsCount;
         },
 
+        rad() {
+            this.s.noLoop();
+            this.gridCols++;
+            this.currentGrid = this.randomizeCells(this.createGrid());
+            this.nextGrid = this.createGrid();
+            this.s.loop();
+        },
+
+        restart() {
+            this.s.noLoop();
+
+            this.currentGrid = this.randomizeCells(this.createGrid());
+
+            this.s.loop();
+        },
+
         generateNewgrid() {
             let that = this;
 
@@ -153,12 +170,15 @@ export default {
             let setup = (p) =>
                 function () {
                     const mycanvas = p.createCanvas(
-                        that.windowWidth,
-                        that.windowHeight,
+                        //that.windowWidth,
+                        //that.windowHeight,
+
+                        600,
+                        600,
                     );
 
-                    p.frameRate(11);
-                    p.background(200);
+                    p.frameRate(10);
+                    p.background(230);
 
                     that.currentGrid = that.randomizeCells(that.createGrid());
                     that.nextGrid = that.createGrid();
@@ -172,32 +192,26 @@ export default {
 
                     that.currentGrid.forEach((a, y) => {
                         a.forEach((b, x) => {
-                            const width = x * cellSize.width;
-                            const height = y * cellSize.height;
+                            if (b.aLive) {
+                                p.fill(40);
+                            } else {
+                                p.fill(220);
+                            }
 
-                            if (b.aLive) p.fill(101, 254, 87);
-                            else p.fill(54, 54, 54);
-
-                            p.rect(
-                                width,
-                                height,
-                                that.windowWidth,
-                                that.windowHeight,
-                            );
+                            p.square(x * 50, y * 50, 50);
                         });
                     });
-
-                    if (that.h) {
-                        p.reset();
-                    }
                 };
 
             //create a p5 instance
             const instance = (p) => {
-                p.setup = setup(p);
-                p.draw = draw(p);
+                this.s = p;
+                this.s.setup = setup(this.s);
+                this.s.draw = draw(this.s);
+                this.rad();
             };
 
+            //create a canvas
             const myCanvas = new p5(instance);
         },
     },
@@ -216,11 +230,8 @@ export default {
             <span>Grid cells: {{ this.gridCols * this.gridRows }}</span>
             <span>Grid cols: {{ this.gridCols }}</span>
             <span>Grid rows: {{ this.gridRows }}</span>
-            <span>
-                Cell color:
-                <samp> III </samp>
-            </span>
-            <span @click="">restart</span>
+            <span class="cursor-pointer">stop / restart</span>
+            <span class="cursor-pointer" @click="this.restart()">random</span>
         </div>
     </div>
 </template>
