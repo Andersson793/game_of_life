@@ -121,12 +121,20 @@ export default {
             this.s.loop();
         },
 
-        restart() {
+        random() {
             this.s.noLoop();
 
             this.currentGrid = this.randomizeCells(this.createGrid());
 
             this.s.loop();
+        },
+
+        stop_restart() {
+            if (this.s.isLooping()) {
+                this.s.noLoop();
+            } else {
+                this.s.loop();
+            }
         },
 
         generateNewgrid() {
@@ -230,8 +238,10 @@ export default {
             <span>Grid cells: {{ this.gridCols * this.gridRows }}</span>
             <span>Grid cols: {{ this.gridCols }}</span>
             <span>Grid rows: {{ this.gridRows }}</span>
-            <span class="cursor-pointer">stop / restart</span>
-            <span class="cursor-pointer" @click="this.restart()">random</span>
+            <span class="cursor-pointer" @click="this.stop_restart()"
+                >stop / restart</span
+            >
+            <span class="cursor-pointer" @click="this.random()"> random </span>
         </div>
     </div>
 </template>
