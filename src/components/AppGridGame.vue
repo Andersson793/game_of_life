@@ -9,12 +9,12 @@ export default {
             windowWidth: document.body.clientWidth,
             windowHeight: document.body.clientHeight - 32,
             gridPopulation: useStore().gridPopulation,
-            gridCols: 10,
-            gridRows: 10,
+            gridSize: 800,
+            gridCols: 30,
+            gridRows: 30,
             currentGrid: [],
             nextGrid: [],
             cell: {},
-            h: false,
             s: undefined,
         };
     },
@@ -36,8 +36,8 @@ export default {
     },
 
     methods: {
-        randomizeCells(grid) {
-            const g = grid;
+        randomizeCells() {
+            const g = this.createGrid();
 
             g.forEach((a, y) => {
                 a.forEach((b, x) => {
@@ -113,28 +113,51 @@ export default {
             return neighborsCount;
         },
 
-        rad() {
-            this.s.noLoop();
-            this.gridCols++;
-            this.currentGrid = this.randomizeCells(this.createGrid());
-            this.nextGrid = this.createGrid();
-            this.s.loop();
-        },
-
+        //randomize cells
         random() {
             this.s.noLoop();
 
-            this.currentGrid = this.randomizeCells(this.createGrid());
+            this.currentGrid = this.randomizeCells();
 
             this.s.loop();
         },
 
+        //stop or restart grid frames
         stop_restart() {
             if (this.s.isLooping()) {
                 this.s.noLoop();
             } else {
                 this.s.loop();
             }
+        },
+
+        //adds and removes columns and rows from the grid
+        addGridCells() {
+            this.s.noLoop();
+
+            this.gridCols++;
+            this.gridRows++;
+            this.currentGrid = this.randomizeCells();
+            this.nextGrid = this.createGrid();
+
+            this.s.clear();
+            this.s.redraw();
+
+            this.s.loop();
+        },
+
+        reduceGridCells() {
+            this.s.noLoop();
+
+            this.gridCols--;
+            this.gridRows--;
+            this.currentGrid = this.randomizeCells();
+            this.nextGrid = this.createGrid();
+
+            this.s.clear();
+            this.s.redraw();
+
+            this.s.loop();
         },
 
         generateNewgrid() {
@@ -147,23 +170,29 @@ export default {
                         b.position.y,
                     );
 
+                    //game of life roles
                     if (
                         (b.aLive === 1 && neighborsLiving === 2) ||
                         neighborsLiving === 3
                     ) {
                         this.nextGrid[y][x].aLive = 1;
-                    } else if (b.aLive === 0 && neighborsLiving === 3) {
+                    }
+
+                    if (b.aLive === 0 && neighborsLiving === 3) {
                         this.nextGrid[y][x].aLive = 1;
-                    } else if (b.aLive === 1 && neighborsLiving > 3) {
+                    }
+
+                    if (b.aLive === 1 && neighborsLiving > 3) {
                         this.nextGrid[y][x].aLive = 0;
-                    } else if (b.aLive === 1 && neighborsLiving < 2) {
+                    }
+
+                    if (b.aLive === 1 && neighborsLiving < 2) {
                         this.nextGrid[y][x].aLive = 0;
                     }
                 });
             });
 
             that.currentGrid = this.nextGrid;
-
             that.nextGrid = this.createGrid();
         },
 
@@ -177,19 +206,18 @@ export default {
 
             let setup = (p) =>
                 function () {
+                    const size = 700;
                     const mycanvas = p.createCanvas(
-                        //that.windowWidth,
-                        //that.windowHeight,
-
-                        600,
-                        600,
+                        that.gridSize,
+                        that.gridSize,
                     );
 
                     p.frameRate(10);
-                    p.background(230);
 
-                    that.currentGrid = that.randomizeCells(that.createGrid());
+                    that.currentGrid = that.randomizeCells();
                     that.nextGrid = that.createGrid();
+
+                    mycanvas.position(40, 40, "relative");
 
                     mycanvas.parent("canvas");
                 };
@@ -198,15 +226,17 @@ export default {
                 function () {
                     that.generateNewgrid();
 
+                    const t = that.gridSize / that.gridCols;
+
                     that.currentGrid.forEach((a, y) => {
                         a.forEach((b, x) => {
                             if (b.aLive) {
-                                p.fill(40);
+                                p.fill(30);
                             } else {
                                 p.fill(220);
                             }
 
-                            p.square(x * 50, y * 50, 50);
+                            p.square(x * t, y * t, t);
                         });
                     });
                 };
@@ -216,16 +246,11 @@ export default {
                 this.s = p;
                 this.s.setup = setup(this.s);
                 this.s.draw = draw(this.s);
-                this.rad();
             };
 
             //create a canvas
             const myCanvas = new p5(instance);
         },
-    },
-
-    updated() {
-        console.log("Updated");
     },
 };
 </script>
@@ -237,11 +262,26 @@ export default {
         >
             <span>Grid cells: {{ this.gridCols * this.gridRows }}</span>
             <span>Grid cols: {{ this.gridCols }}</span>
+            <div>
+                <span
+                    class="w-10 h-5 hover:bg-gray-50/10 rounded-sm text-center cursor-pointer text-2xl select-none"
+                    @click="this.reduceGridCells()"
+                >
+                    -
+                </span>
+                <span
+                    class="p-3 hover:bg-gray-50/10 rounded-sm text-center cursor-pointer text-2xl select-none"
+                    @click="this.addGridCells()"
+                >
+                    +
+                </span>
+            </div>
+
+            <span>|</span>
+
             <span>Grid rows: {{ this.gridRows }}</span>
-            <span class="cursor-pointer" @click="this.stop_restart()"
-                >stop / restart</span
-            >
             <span class="cursor-pointer" @click="this.random()"> random </span>
+            <span class="cursor-pointer" @click="this.stop_restart()">[]</span>
         </div>
     </div>
 </template>
