@@ -206,7 +206,7 @@ export default {
 
             let setup = (p) =>
                 function () {
-                    const size = 700;
+                    const size = 600;
                     const mycanvas = p.createCanvas(
                         that.gridSize,
                         that.gridSize,
@@ -217,7 +217,11 @@ export default {
                     that.currentGrid = that.randomizeCells();
                     that.nextGrid = that.createGrid();
 
-                    mycanvas.position(40, 40, "relative");
+                    mycanvas.position(
+                        this.windowWidth / 2 - that.gridSize / 2,
+                        this.windowHeight / 2 - that.gridSize / 2,
+                        "relative",
+                    );
 
                     mycanvas.parent("canvas");
                 };
