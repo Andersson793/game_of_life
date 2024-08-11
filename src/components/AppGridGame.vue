@@ -179,7 +179,7 @@ export default {
                         that.gridSize,
                         that.gridSize,
                     );
-                    p.frameRate(10);
+                    p.frameRate(12);
                     //p.noStroke();
                     p.strokeWeight(2);
                     p.stroke(15);
