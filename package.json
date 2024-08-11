@@ -5,6 +5,7 @@
     "@ionited/mask-vue": "^0.1.27",
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
+    "lucide-vue-next": "^0.427.0",
     "p5": "^1.9.4",
     "pinia": "^2.1.7",
     "postcss": "^8.4.38",
